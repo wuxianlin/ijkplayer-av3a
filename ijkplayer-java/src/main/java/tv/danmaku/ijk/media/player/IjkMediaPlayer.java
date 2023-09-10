@@ -54,6 +54,7 @@ import java.util.Map;
 
 import tv.danmaku.ijk.media.player.annotations.AccessedByNative;
 import tv.danmaku.ijk.media.player.annotations.CalledByNative;
+import tv.danmaku.ijk.media.player.av3a.AudioVividMetaDataHandler;
 import tv.danmaku.ijk.media.player.misc.IAndroidIO;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 import tv.danmaku.ijk.media.player.misc.ITrackInfo;
@@ -142,6 +143,9 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public static final int FFP_PROP_INT64_IMMEDIATE_RECONNECT              = 20211;
     //----------------------------------------
 
+    public static final int MEDIA_SEI_DATA = 201;
+    public static final int MSG_AV3A_METADATA_CHANGED = 200001;
+
     @AccessedByNative
     private long mNativeMediaPlayer;
     @AccessedByNative
@@ -158,6 +162,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
     private SurfaceHolder mSurfaceHolder;
     private EventHandler mEventHandler;
+    public final AudioVividMetaDataHandler audioVividMetaDataHandler = new AudioVividMetaDataHandler(this);
     private PowerManager.WakeLock mWakeLock = null;
     private boolean mScreenOnWhilePlaying;
     private boolean mStayAwake;
@@ -187,9 +192,11 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                 if (libLoader == null)
                     libLoader = sLocalLibLoader;
 
+                libLoader.loadLibrary("wsrtcsdk");
                 libLoader.loadLibrary("ijkffmpeg");
                 libLoader.loadLibrary("ijksdl");
                 libLoader.loadLibrary("ijkplayer");
+                libLoader.loadLibrary("RtsSDK");
                 mIsLibLoaded = true;
             }
         }
@@ -1050,6 +1057,14 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
                         player.mVideoSarNum, player.mVideoSarDen);
                 break;
 
+            case MEDIA_SEI_DATA:
+                player.notifyOnSEIRefresh(msg.arg1, msg.arg2);
+                break;
+
+            case MSG_AV3A_METADATA_CHANGED:
+                player.notifyOnAudioVividMetadataChanged();
+                break;
+
             default:
                 DebugLog.e(TAG, "Unknown message type " + msg.what);
             }
@@ -1284,4 +1299,41 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     public static native void native_profileBegin(String libName);
     public static native void native_profileEnd();
     public static native void native_setLogLevel(int level);
+
+    private native int native_setAv3aMetadataFloat(int i, int i2, float f2);
+
+    private native float native_getAv3aMetadataFloat(int i, int i2);
+
+    private native int native_getAv3aMetadataInt(int i, int i2);
+
+    private native String native_getAv3aMetadataString(int i, int i2);
+
+    public int setAv3aMetadataFloat(int i, int i2, float f2) {
+        return native_setAv3aMetadataFloat(i, i2, f2);
+    }
+
+    public float getAv3aMetadataFloat(int i, int i2) {
+        return native_getAv3aMetadataFloat(i, i2);
+    }
+
+    public int getAv3aMetadataInt(int i, int i2) {
+        return native_getAv3aMetadataInt(i, i2);
+    }
+
+    public String getAv3aMetadataString(int i, int i2) {
+        return native_getAv3aMetadataString(i, i2);
+    }
+
+    private native void _setGyro(float f2, float f3, float f4);
+
+    public void setGyro(float f2, float f3, float f4) {
+        _setGyro(f2, f3, f4);
+    }
+
+    private native int _setStreamSelectedPLV(int i, boolean z);
+
+    public int selectTrackPLV(int i) {
+        return _setStreamSelectedPLV(i, true);
+    }
+
 }
