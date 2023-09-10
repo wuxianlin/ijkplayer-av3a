@@ -104,7 +104,7 @@ public class Settings {
 
     public String getLastDirectory() {
         String key = mAppContext.getString(R.string.pref_key_last_directory);
-        return mSharedPreferences.getString(key, "/");
+        return mSharedPreferences.getString(key, "");
     }
 
     public void setLastDirectory(String path) {
