@@ -40,7 +40,9 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -1082,6 +1084,19 @@ public class IjkVideoView extends FrameLayout implements MediaController.MediaPl
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "http-detect-range-support", 0);
 
                     ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_CODEC, "skip_loop_filter", 48);
+                    Context context = getContext();
+                    File file = new File(context.getCacheDir(), "model.bin");
+                    try (InputStream inputStream = context.getAssets().open("model.bin");
+                         FileOutputStream outputStream = new FileOutputStream(file, false)) {
+                        int read;
+                        byte[] bytes = new byte[1024];
+                        while ((read = inputStream.read(bytes)) != -1) {
+                            outputStream.write(bytes, 0, read);
+                        }
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+                    ijkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "av3a_model_path", file.getAbsolutePath());
                 }
                 mediaPlayer = ijkMediaPlayer;
             }
