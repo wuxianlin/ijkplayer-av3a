@@ -1,9 +1,13 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Ijkplayer" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
 
-    <style name="Theme.Ijkplayer" parent="Base.Theme.Ijkplayer" />
+    <style name="Theme.AppTheme" parent="Base.Theme.AppTheme" />
+
+    <style name="Theme.FullscreenTheme" parent="Base.Theme.AppTheme">
+        <item name="android:windowFullscreen">true</item>
+    </style>
 </resources>
